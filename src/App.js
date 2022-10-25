@@ -5,17 +5,11 @@ import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
 import { useEffect, useState } from 'react';
 import { child, getDatabase, ref, set } from "firebase/database";
 import {database} from "./firebase"
+import { v4 as uuid } from 'uuid'; // Unique ID package for React
 //import { getDatabase, ref, set } from "firebase/database";
 //import {firebaseConfig, app} from "./firebase.js"
 
-/*
-var xPos;
-var yPos;
-var zPos;
-var freqSensor;
-var varTest = 1;
-let letTest = "letTest"
-*/
+
 function App() {  
 
   //const options = { frequency: 60, referenceFrame: "device" };
@@ -26,6 +20,7 @@ function App() {
     z: 0,
     w: 0
   });
+  const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
   //const databaseRef = collection(database); // ??? is this how you declare it? - Think i can just use database now
 
   useEffect(() =>{ // Things are only called once because of []?
@@ -41,7 +36,7 @@ function App() {
       //Set method to update values locally on screen for debugging:
       //setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       //Send til firebase herfra med metode kald som tager de 4 quaternion values.
-      writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3]);
+      writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
     });
 
     sensor.addEventListener("error", (error) => {
@@ -63,10 +58,9 @@ function App() {
 
 //import { from } from 'list';
 
-  function writeSensorData(x, y, z, w) {
-    const userId = database.key;
+  function writeSensorData(x, y, z, w, uniqueId) {
     const db = database;
-    set(ref(db, 'users/'), {
+    set(ref(db, 'users/' + uniqueId + 'SensorInfo'), {
       xQuart: x,
       yQuart: y,
       zQuart : z,
