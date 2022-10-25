@@ -2,7 +2,11 @@ import logo from './logo.svg';
 import './App.css';
 import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill'
 import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getDatabase, ref, set } from "firebase/database";
+import {database} from "./firebase"
+//import { getDatabase, ref, set } from "firebase/database";
+//import {firebaseConfig, app} from "./firebase.js"
 
 /*
 var xPos;
@@ -14,31 +18,39 @@ let letTest = "letTest"
 */
 function App() {  
 
-  const options = { frequency: 60, referenceFrame: "device" };
-  const sensor = new AbsoluteOrientationSensor(options);
+  //const options = { frequency: 60, referenceFrame: "device" };
+  //const sensor = new AbsoluteOrientationSensor(options);
   const [quaternion, setQuaternion] = useState({
     x: 0,
     y: 0,
     z: 0,
     w: 0
   });
+  //const databaseRef = collection(database); // ??? is this how you declare it? - Think i can just use database now
 
-  sensor.addEventListener("reading", () => {
-    // model is a Three.js object instantiated elsewhere.
-    //model.quaternion.fromArray(sensor.quaternion).inverse();
-    console.log(`Quart0 ${sensor.quaternion[0]}`);
-    console.log(`Quart1 ${sensor.quaternion[1]}`);
-    console.log(`Quart2 ${sensor.quaternion[2]}`);
-    console.log(`Quart3 ${sensor.quaternion[3]}`);
-    setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-  });
-  
-  sensor.addEventListener("error", (error) => {
-    if (error.name === "NotReadableError") {
-      console.log("Sensor is not available.");
-    }
-  });
-  sensor.start();
+  useEffect(() =>{ // Things are only called once because of []?
+    const options = { frequency: 60, referenceFrame: "device" };
+    const sensor = new AbsoluteOrientationSensor(options);
+    sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
+      // model is a Three.js object instantiated elsewhere.
+      //model.quaternion.fromArray(sensor.quaternion).inverse();
+      console.log(`Quart0 ${sensor.quaternion[0]}`);
+      console.log(`Quart1 ${sensor.quaternion[1]}`);
+      console.log(`Quart2 ${sensor.quaternion[2]}`);
+      console.log(`Quart3 ${sensor.quaternion[3]}`);
+      setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+      //Send til firebase herfra med metode kald som tager de 4 quaternion values.
+      writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3]);
+    });
+
+    sensor.addEventListener("error", (error) => {
+      if (error.name === "NotReadableError") {
+        console.log("Sensor is not available.");
+      }
+    });
+    sensor.start();
+  }, []);
+
   //ask permissions
   /*const sensor = new AbsoluteOrientationSensor();
 Promise.all([
@@ -63,7 +75,7 @@ Promise.all([
   return (
     <div className="App">
       <header className="App-header">
-        <span>V8</span> 
+        <span>V9</span> 
         <span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
         <span>Z: {quaternion.z}</span>
@@ -148,4 +160,14 @@ if ('Accelerometer' in window) {
       }
     }
   }*/
+
+  function writeSensorData(x, y, z, w) {
+    const db = database;
+    set(ref(db, 'users/'), {
+      xQuart: x,
+      yQuart: y,
+      zQuart : z,
+      wQuart : w
+    });
+  }
 export default App;
