@@ -3,7 +3,7 @@ import './App.css';
 import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill'
 import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
 import { useEffect, useState } from 'react';
-import { child, getDatabase, ref, set } from "firebase/database"; // Main Firebase implemenentation from general Lib
+import { child, getDatabase, ref, set, update } from "firebase/database"; // Main Firebase implemenentation from general Lib
 import {database} from "./firebase" // referencing manually created firebase.js to reference database - like databaseRef.
 import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
@@ -54,6 +54,7 @@ function App() {
       //Send til firebase herfra med metode kald som tager de 4 quaternion values.
       writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
     });
+    //Can try sensor.onreading() instead of addEventListener?
 
     sensor.addEventListener("error", (error) => {
       if (error.name === "NotReadableError") {
@@ -91,12 +92,14 @@ function App() {
     const db = database;
     set(ref(db, 'users/' + uniqueId +'/'+ 'ActionInput'), {
       score: resetScore,
+      id: uniqueId,
       shoot: input
     });
   }
+
   function sendShot(input, uniqueId) {
     const db = database;
-    set(ref(db, 'users/' + uniqueId +'/'+ 'ActionInput'), {
+    update(ref(db, 'users/' + uniqueId +'/'+ 'ActionInput'), { // call update instead of set, so it doesnt overwrite score & id
       shoot: input
     });
   }
