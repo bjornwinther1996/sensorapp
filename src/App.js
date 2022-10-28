@@ -8,7 +8,7 @@ import {database} from "./firebase" // referencing manually created firebase.js 
 import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
 import React from 'react';
-import { useGeolocated } from "react-geolocated";
+import useGeolocation from './hooks/useGeolocation';
 
 const Button = styled.button`
   background-color: white;
@@ -19,9 +19,34 @@ const Button = styled.button`
   text-align: center;
 `
 const Span = styled.span`
-  padding: 60px;
+  padding: 20px;
 `
+const GeoButton = styled.button`
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-family: monospace;
+  text-align: center;
+  margin-top: 10px;
+`
+const rowDiv = styled.div`
+    display: flex;
+`
+const colDiv = styled.div`
+  flex-grow: 1;
+  text-align: center;
+  margin-left: 20px;
+  margin-right: 20px;
+`
+
 const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
+
+function setGeoPos(lat, lng, pos) {
+  //implementation for calling once.
+  //should it also send it to the server?
+  sendGeoLoc(lat, lng, pos);
+}
 
 function clickMe(){
   sendShot(1,uniqueId);
@@ -35,7 +60,14 @@ function App() {
     z: 0,
     w: 0
   });
-  
+  //Use code to set local properties on button?
+  /*const [coordinates, setCoordinates] = useState({
+    latitude: 0,
+    longitude: 0
+  });*/
+  //setCoordinates({latitude: location.coordinates.lat, longitude: location.coordinates.lng});
+
+  const location = useGeolocation(); // importing from hook.
 
   //const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
   //const databaseRef = collection(database); // ??? is this how you declare it? - Think i can just use database now
@@ -69,7 +101,16 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+      <GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'top')}>
+          top
+          </GeoButton>
         <Span>V11</Span> 
+        <rowDiv>
+          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'left')}>left</GeoButton></colDiv>
+          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'middle')}>middle</GeoButton></colDiv>
+          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'right')}>right</GeoButton></colDiv>
+        </rowDiv>
+        <span>Geo: {location.loaded ? JSON.stringify(location) : 'Location not available yet'}</span>
         <span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
         <span>Z: {quaternion.z}</span>
@@ -77,12 +118,19 @@ function App() {
         <Button onClick={clickMe}>
           Shoot
         </Button>
+        <div> 
+        <GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'bottom')}>
+          bottom
+        </GeoButton>
+      </div>
       </header>
     </div>
   );
 }
 
 //import { from } from 'list';
+
+//Functions to write/read from/to server (FIREBASE):
 
   function writeSensorData(x, y, z, w, uniqueId) {
     const db = database;
@@ -105,8 +153,17 @@ function App() {
 
   function sendShot(input, uniqueId) {
     const db = database;
-    update(ref(db, 'users/' + uniqueId +'/'+ 'ActionInput'), { // call update instead of set, so it doesnt overwrite score & id
+    update(ref(db, 'users/' + uniqueId +'/'+ 'ActionInput'), { // call update instead of set, so it doesnt overwrite score & id by path
       shoot: input
+    });
+  }
+
+  function sendGeoLoc(lat, lng, pos) {
+    const db = database;
+    set(ref(db, 'users/' + uniqueId +'/'+ 'GeneralInfo'), {
+      position: pos,
+      latitude: lat,
+      longitude: lng
     });
   }
 
