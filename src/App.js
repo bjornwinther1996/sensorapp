@@ -8,6 +8,7 @@ import {database} from "./firebase" // referencing manually created firebase.js 
 import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
 import React from 'react';
+import { useGeolocated } from "react-geolocated";
 
 const Button = styled.button`
   background-color: white;
@@ -34,12 +35,13 @@ function App() {
     z: 0,
     w: 0
   });
+  
 
   //const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
   //const databaseRef = collection(database); // ??? is this how you declare it? - Think i can just use database now
 
   useEffect(() =>{ // Things are only called once because of []?
-    const options = { frequency: 60, referenceFrame: "device" };
+    const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
     const sensor = new AbsoluteOrientationSensor(options);
     writeActionInput(0,0,uniqueId); // trigger once - to trigger actionInput in database and reset score
     sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
@@ -50,7 +52,7 @@ function App() {
       //console.log(`Quart3 ${sensor.quaternion[3]}`);
       
       //Set method to update values locally on screen for debugging:
-      //setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+      setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       //Send til firebase herfra med metode kald som tager de 4 quaternion values.
       writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
     });
@@ -68,6 +70,10 @@ function App() {
     <div className="App">
       <header className="App-header">
         <Span>V11</Span> 
+        <span>X: {quaternion.x}</span>
+        <span>Y: {quaternion.y}</span>
+        <span>Z: {quaternion.z}</span>
+        <span>W: {quaternion.w}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
