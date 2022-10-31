@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/sensorapp/static/css/main.7c6d9170.css",
-    "main.js": "/sensorapp/static/js/main.c37d5409.js",
+    "main.js": "/sensorapp/static/js/main.7349ee25.js",
     "static/js/787.dd6568c4.chunk.js": "/sensorapp/static/js/787.dd6568c4.chunk.js",
     "static/media/logo.svg": "/sensorapp/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/sensorapp/index.html",
     "main.7c6d9170.css.map": "/sensorapp/static/css/main.7c6d9170.css.map",
-    "main.c37d5409.js.map": "/sensorapp/static/js/main.c37d5409.js.map",
+    "main.7349ee25.js.map": "/sensorapp/static/js/main.7349ee25.js.map",
     "787.dd6568c4.chunk.js.map": "/sensorapp/static/js/787.dd6568c4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7c6d9170.css",
-    "static/js/main.c37d5409.js"
+    "static/js/main.7349ee25.js"
   ]
 }
