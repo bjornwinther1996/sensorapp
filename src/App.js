@@ -30,16 +30,6 @@ const GeoButton = styled.button`
   text-align: center;
   margin-top: 10px;
 `
-const rowDiv = styled.div`
-    display: flex;
-`
-const colDiv = styled.div`
-  flex-grow: 1;
-  text-align: center;
-  margin-left: 20px;
-  margin-right: 20px;
-`
-
 const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
 
 function setGeoPos(lat, lng, pos) {
@@ -105,11 +95,11 @@ function App() {
           top
           </GeoButton>
         <Span>V11</Span> 
-        <rowDiv>
-          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'left')}>left</GeoButton></colDiv>
-          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'middle')}>middle</GeoButton></colDiv>
-          <colDiv><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'right')}>right</GeoButton></colDiv>
-        </rowDiv>
+        <div className='rowDiv'>
+          <div className='colDiv'><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'left')}>left</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'middle')}>middle</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={setGeoPos(location.coordinates.lat,location.coordinates.lng,'right')}>right</GeoButton></div>
+        </div>
         <span>Geo: {location.loaded ? JSON.stringify(location) : 'Location not available yet'}</span>
         <span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
@@ -191,3 +181,35 @@ Promise.all([
   }
 });*/
 
+
+//Permission code:
+/*
+    Promise.all([
+      navigator.permissions.query({ name: "accelerometer" }),
+      navigator.permissions.query({ name: "magnetometer" }),
+      navigator.permissions.query({ name: "gyroscope" }),
+    ]).then((results) => {
+      if (results.every((result) => result.state === "granted")) {
+        sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
+          //Console logs commented - works:
+          //console.log(`Quart0 ${sensor.quaternion[0]}`);
+          //console.log(`Quart1 ${sensor.quaternion[1]}`);
+          //console.log(`Quart2 ${sensor.quaternion[2]}`);
+          //console.log(`Quart3 ${sensor.quaternion[3]}`);
+          
+          //Set method to update values locally on screen for debugging:
+          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+          //Send til firebase herfra med metode kald som tager de 4 quaternion values.
+          writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+        });
+        sensor.addEventListener("error", (error) => {
+          if (error.name === "NotReadableError") {
+            console.log("Sensor is not available.");
+          }
+        });
+        sensor.start();
+      } else {
+        console.log("No permissions to use AbsoluteOrientationSensor.");
+      }
+    });
+  */
