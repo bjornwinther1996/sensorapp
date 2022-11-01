@@ -8,7 +8,7 @@ import {database} from "./firebase" // referencing manually created firebase.js 
 import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
 import React from 'react';
-import useGeolocation from './hooks/useGeolocation';
+//import useGeolocation from './hooks/useGeolocation'; // can only call hooks from react functions (ex: useState, useEffect) - Not used
 
 const Button = styled.button`
   background-color: white;
@@ -40,17 +40,33 @@ function App() {
     z: 0,
     w: 0
   });
-  //Use code to set local properties on button?
-  const [coordinates, setCoordinates] = useState({
-    latitude: 0,
-    longitude: 0
-  });
   //setCoordinates({latitude: location.coordinates.lat, longitude: location.coordinates.lng});
+  //const location = useGeolocation(); // importing from hook.// needs to be called in function to update lat and long again, when clicked and not just use same variables.
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+  const [status, setStatus] = useState(null);
+  const options = { // Options for the currentPosition method.
+    enableHighAccuracy: true,
+    timeout: 30000,
+    maximumAge: 2700
+  };
 
-  const location = useGeolocation(); // importing from hook.  // needs to be called in function to update lat and long again, and not just use the same.
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+  setStatus('Geolocation is not supported by your browser');
+  } else {
+          setStatus('Locating...');
+          navigator.geolocation.getCurrentPosition((position) => { //consider setting same options from hook with high accuracy? test showed same results tho
+              setStatus(null);
+              setLat(position.coords.latitude);
+              setLng(position.coords.longitude);
+          }, () => {
+              setStatus('Unable to retrieve your location');
+          },error,options);
+      }
+  }
 
   useEffect(() =>{ // Things are only called once because of []?
-    
     const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
     const sensor = new AbsoluteOrientationSensor(options);
     writeActionInput(0,0,uniqueId); // trigger once - to trigger actionInput in database and reset score
@@ -74,27 +90,30 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-      <GeoButton onClick={() =>{setGeoPos(location.coordinates.lat,location.coordinates.lng,'top')}}>
-          top
+      <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
+          Top
           </GeoButton>
         <Span>V11</Span> 
         <div className='rowDiv'>
-          <div className='colDiv'><GeoButton onClick={() =>{sendGeoLoc(location.coordinates.lat,location.coordinates.lng,'left')}}>left</GeoButton></div>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(location.coordinates.lat,location.coordinates.lng,'middle')}}>middle</GeoButton></div>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(location.coordinates.lat,location.coordinates.lng,'right')}}>right</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'right')}}>Right</GeoButton></div>
         </div>
-        <span>Geo: {location.loaded ? JSON.stringify(location) : 'Location not available yet'}</span>
         <span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
         <span>Z: {quaternion.z}</span>
         <span>W: {quaternion.w}</span>
+        <GeoButton onClick={() =>{getLocation()}}>UpdateGeo</GeoButton>
+        <span>Geo Location Status {status}</span>
+        <span>Lat {lat}</span>
+        <span>Long {lng}</span>
         <span>Browser: {fnBrowserDetect()}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
         <div> 
-        <GeoButton onClick={() =>{setGeoPos(location.coordinates.lat,location.coordinates.lng,'bottom')}}>
-          bottom
+        <GeoButton onClick={() =>{setGeoPos(lat,lng,'bottom')}}>
+          Bottom
         </GeoButton>
       </div>
       </header>
@@ -133,7 +152,7 @@ function sendShot(input, uniqueId) {
 
 function sendGeoLoc(lat, lng, pos) {
   const db = database;
-  set(ref(db, 'users/' + uniqueId +'/'+ 'GeneralInfo'), {
+  update(ref(db, 'users/' + uniqueId +'/'+ 'GeneralInfo' + '/' + pos), {
     position: pos,
     latitude: lat,
     longitude: lng
@@ -148,6 +167,10 @@ function setGeoPos(lat, lng, pos) {
 
 function clickMe(){
   sendShot(1,uniqueId);
+}
+
+function error() {
+  alert('Sorry, no position available.');
 }
 
 function fnBrowserDetect(){
@@ -174,11 +197,13 @@ function fnBrowserDetect(){
 export default App;
 
 //Commented code:
-//If you want to display Quart values on screen locally
+//If you want to display Quart values on screen locally (& old hook showing geolocation. Not used anymore)
 /*<span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
         <span>Z: {quaternion.z}</span>
-        <span>W: {quaternion.w}</span>*/ 
+        <span>W: {quaternion.w}</span>
+        <span>Geo: {location.loaded ? JSON.stringify(location) : 'Location not available yet'}</span>
+        */ 
 
 //ask permissions
 /*const sensor = new AbsoluteOrientationSensor();
