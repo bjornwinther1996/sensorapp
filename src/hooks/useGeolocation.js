@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+//Isnt used currently:
 const useGeolocation = () => {
     const [location, setLocation] = useState({
         loaded: false,

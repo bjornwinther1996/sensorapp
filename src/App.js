@@ -1,6 +1,6 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
-import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill'
+//import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill' // not used 
 import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
 import { useEffect, useState } from 'react';
 import { child, getDatabase, ref, set, update } from "firebase/database"; // Main Firebase implemenentation from general Lib
@@ -32,6 +32,7 @@ const GeoButton = styled.button`
 `
 const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
 
+
 function App() {  
 
   const [quaternion, setQuaternion] = useState({ // is currently not used. Was used to display Quart values on screen.
@@ -50,6 +51,17 @@ function App() {
     timeout: 30000,
     maximumAge: 2700
   };
+  const [debugMsg, setDebugMsg] = useState(null);
+  const [permissionGranted, setPermissionGranted] = useState(null);
+
+  function requestAccess() { // not working currently: 
+    DeviceOrientationEvent.requestPermission().then(response => {
+      if(response = 'granted'){
+        setPermissionGranted(true);
+        }
+      })
+      .catch(console.error);
+  }
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -66,24 +78,87 @@ function App() {
       }
   }
 
-  useEffect(() =>{ // Things are only called once because of []?
-    const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
-    const sensor = new AbsoluteOrientationSensor(options);
-    writeActionInput(0,0,uniqueId); // trigger once - to trigger actionInput in database and reset score
-    sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
-      //Set method to update values locally on screen for debugging:
-      setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-      //Send til firebase herfra med metode kald som tager de 4 quaternion values.
-      writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-    });
-    //Can try sensor.onreading() instead of addEventListener?
+  function handleOrientation(event) {
+    const absolute = event.absolute;
+    const alpha = event.alpha;
+    const beta = event.beta;
+    const gamma = event.gamma;
+  
+    // Do stuff with the new orientation data
+    setQuaternion(absolute,alpha,beta,gamma);
+  }
 
-    sensor.addEventListener("error", (error) => {
-      if (error.name === "NotReadableError") {
-        console.log("Sensor is not available.");
+  useEffect(() =>{ // Things are only called once because of []?
+    function initSensor() {
+      const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
+      console.log(JSON.stringify(options));
+      const sensor = new AbsoluteOrientationSensor(options);
+      sensor.addEventListener("reading", () => {
+        setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+        writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+      });
+      //sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
+      sensor.onerror = (event) => {
+        if (event.error.name == 'NotReadableError') {
+          console.log("Sensor is not available.");
+          setDebugMsg("Sensor is not avaliable InitSensorMethod");
+        }
       }
-    });
-    sensor.start();
+      sensor.start();
+    }
+    if(fnBrowserDetect() === 'safari'){ // check that this actually works - WHAT IF CHROME OR OTHER BROWSER ON IOS!!!
+      setDebugMsg("safari brower detected");
+      //window.addEventListener("deviceorientation", handleOrientation, true);
+      if (typeof (DeviceOrientationEvent) !== 'undefined' && typeof (DeviceOrientationEvent.requestPermission) === 'function') {// iOS 13+
+        //window.addEventListener("deviceorientation", handleOrientation, true);
+        initSensor();
+        setDebugMsg("IOS 13 device");
+      } else {// non iOS 13+
+        setDebugMsg("NON-IOS 13 device");
+      }
+    }else{
+      if (navigator.permissions) {
+        setDebugMsg("Asking permissions");
+        Promise.all([navigator.permissions.query({ name: "accelerometer" }),
+                    navigator.permissions.query({ name: "magnetometer" }),
+                    navigator.permissions.query({ name: "gyroscope" })])
+              .then(results => {
+                    if (results.every(result => result.state === "granted")) {
+                        setDebugMsg("Permission Granted");
+                        initSensor();
+                    } else {
+                        console.log("Permission to use sensor was denied.");
+                        setDebugMsg("Permission to use sensor was denied.");
+                    }
+              }).catch(err => {
+                    console.log("Integration with Permissions API is not enabled, still try to start app.");
+                    setDebugMsg("Integration with Permissions API is not enabled, still try to start app.");
+                    initSensor();
+              });
+      }else{
+          console.log("No Permissions API, still try to start app.");
+          setDebugMsg("No Permissions API, still try to start app.");
+          initSensor();
+      }
+  
+      function initSensor() {
+        const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
+        console.log(JSON.stringify(options));
+        const sensor = new AbsoluteOrientationSensor(options);
+        sensor.addEventListener("reading", () => {
+          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+          writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+        });
+        //sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
+        sensor.onerror = (event) => {
+          if (event.error.name == 'NotReadableError') {
+            console.log("Sensor is not available.");
+            setDebugMsg("Sensor is not avaliable InitSensorMethod");
+          }
+        }
+        sensor.start();
+      }
+    }
   }, []);
 
   //Arrow thing on shoot onClick as well, so it soesnt trigger onRender?: https://stackoverflow.com/questions/33846682/react-onclick-function-fires-on-render
@@ -93,16 +168,17 @@ function App() {
       <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
           Top
           </GeoButton>
-        <Span>V11</Span> 
+        <Span>V12</Span> 
         <div className='rowDiv'>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
+          <div className='colDiv'><GeoButton onClick={() =>{requestAccess()}}>Middle</GeoButton></div>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'right')}}>Right</GeoButton></div>
         </div>
         <span>X: {quaternion.x}</span>
         <span>Y: {quaternion.y}</span>
         <span>Z: {quaternion.z}</span>
         <span>W: {quaternion.w}</span>
+        <span>debugMsg: {debugMsg}</span>
         <GeoButton onClick={() =>{getLocation()}}>UpdateGeo</GeoButton>
         <span>Geo Location Status {status}</span>
         <span>Lat {lat}</span>
@@ -258,3 +334,67 @@ Promise.all([
   //console.log(`Quart2 ${sensor.quaternion[2]}`);
   //console.log(`Quart3 ${sensor.quaternion[3]}`);
       
+  //Insied UseEffect - Previous conditions.
+  /*if(fnBrowserDetect() === 'safari'){// specifically for when run on Safari IOS  // ""==="" instead of "=="
+      setDebugMsg("Safari True");
+        if (navigator.permissions) {
+          setDebugMsg("Asking permissions");
+          Promise.all([navigator.permissions.query({ name: "accelerometer" }),
+                      navigator.permissions.query({ name: "magnetometer" }),
+                      navigator.permissions.query({ name: "gyroscope" })])
+                .then(results => {
+                      if (results.every(result => result.state === "granted")) {
+                          setDebugMsg("Permission Granted");
+                          initSensor();
+                      } else {
+                          console.log("Permission to use sensor was denied.");
+                          setDebugMsg("Permission to use sensor was denied.");
+                      }
+                }).catch(err => {
+                      console.log("Integration with Permissions API is not enabled, still try to start app.");
+                      setDebugMsg("Integration with Permissions API is not enabled, still try to start app.");
+                      initSensor();
+                });
+      } else {
+          console.log("No Permissions API, still try to start app.");
+          setDebugMsg("No Permissions API, still try to start app.");
+          initSensor();
+      }
+
+      function initSensor() {
+        const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
+        console.log(JSON.stringify(options));
+        const sensor = new AbsoluteOrientationSensor(options);
+        sensor.addEventListener("reading", () => {
+          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+        });
+        sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
+        sensor.onerror = (event) => {
+          if (event.error.name == 'NotReadableError') {
+            console.log("Sensor is not available.");
+            setDebugMsg("Sensor is not avaliable InitSensorMethod");
+          }
+        }
+        sensor.start();
+    }
+
+    }else{
+      setDebugMsg("Not running on Safari");
+      const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
+      const sensor = new AbsoluteOrientationSensor(options);
+      writeActionInput(0,0,uniqueId); // trigger once - to trigger actionInput in database and reset score
+      sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
+        //Set method to update values locally on screen for debugging:
+        setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+        //Send til firebase herfra med metode kald som tager de 4 quaternion values.
+        writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+      });
+      //Can try sensor.onreading() instead of addEventListener?
+  
+      sensor.addEventListener("error", (error) => {
+        if (error.name === "NotReadableError") {
+          console.log("Sensor is not available.");
+        }
+      });
+      sensor.start();
+    }*/
