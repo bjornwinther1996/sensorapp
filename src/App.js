@@ -161,6 +161,7 @@ function App() {
   return (
     <div className="App">
       <div className='startElement' id='startDiv'>
+        <h1 id='startText'>Hold your phone flat in your hand and press Play</h1>
         <Button className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</Button>
       </div>
       <header className="App-header">
