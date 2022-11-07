@@ -102,12 +102,11 @@ function App() {
   }
 
   function requestAccess() {
-    if(fnBrowserDetect() === 'safari'){
+    if(getMobileOperatingSystem() === 'iOS'){
       requestAccessIOS();
-    }else{ //android:
+    }else{ //android or windows phone: // "else" // dekstop browsers
       requestAccessAndroid();
     }
-    
     const startElements = document.querySelector('.startElement');
     startElements.remove();
     let root = document.documentElement;
@@ -140,17 +139,20 @@ function App() {
     //setDebugMsg('UseEffect called');
     //if(!permissionGranted){return;} //useEffect bliver kun kaldt én gang og det er når app kører og der er Pgranted false. Skal være callback function
     //setDebugMsg('Permissions granted in UseEffect');
-    if(fnBrowserDetect() === 'safari'){ // check that this actually works - WHAT IF CHROME OR OTHER BROWSER ON IOS!!!
-      setDebugMsg("safari brower detected");
+    if(getMobileOperatingSystem() === 'iOS'){ // check that this actually works - WHAT IF CHROME OR OTHER BROWSER ON IOS!!!
+      setDebugMsg("Running on iOS");
       if (typeof (DeviceOrientationEvent) !== 'undefined' && typeof (DeviceOrientationEvent.requestPermission) === 'function') {// iOS 13+
         initSensor();
         setDebugMsg("IOS 13 device");
       } else {// non iOS 13+
         setDebugMsg("NON-IOS 13 device");
       }
-    }else{ //IS all this permission-halløj making it lag for android? Maybe more efficient way or mby just UI.
-      setDebugMsg('Running on android');
+    }else if(getMobileOperatingSystem() === 'Android'){ //IS all this permission-halløj making it lag for android? Maybe more efficient way or mby just UI.
+      setDebugMsg('Running on Android');
       initSensor(); // check if its better to run const sensor and const options outside init-method.
+    }else if(getMobileOperatingSystem() === 'WindowsPhone'){
+      initSensor(); // check if its better to run const sensor and const options outside init-method.
+      setDebugMsg('Running Windows Phone');
     }
   }, []);
 
@@ -164,7 +166,7 @@ function App() {
       <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
           Top
           </GeoButton>
-        <Span>V18</Span> 
+        <Span>V19</Span> 
         <div className='rowDiv'>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
@@ -264,6 +266,26 @@ function fnBrowserDetect(){
       browserName="No browser detection";
     }
     return browserName;
+}
+
+function getMobileOperatingSystem() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+  // Windows Phone must come first because its UA also contains "Android"
+  if (/windows phone/i.test(userAgent)) {
+      return "WindowsPhone";
+  }
+
+  if (/android/i.test(userAgent)) {
+      return "Android";
+  }
+
+  // iOS detection from: http://stackoverflow.com/a/9039885/177710
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      return "iOS";
+  }
+
+  return "unknown";
 }
 
 export default App;
