@@ -182,7 +182,7 @@ function App() {
       <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
           Top
           </GeoButton>
-        <Span>V19</Span> 
+        <Span>V20</Span> 
         <div className='rowDiv'>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
           <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
@@ -199,7 +199,6 @@ function App() {
         <span>Long {lng}</span>
         <span>Browser: {fnBrowserDetect()}</span>
         <span>IP: {ip}</span>
-        <span>ScreenOrient: {screenOrient}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
