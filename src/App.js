@@ -9,6 +9,7 @@ import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
 import React from 'react';
 //import useGeolocation from './hooks/useGeolocation'; // can only call hooks from react functions (ex: useState, useEffect) - Not used
+import axios from 'axios'
 
 const Button = styled.button`
   background-color: white;
@@ -17,6 +18,8 @@ const Button = styled.button`
   font-size: 20px;
   font-family: monospace;
   text-align: center;
+  background-color: #2a2d32;
+  color: white;
 `
 const Span = styled.span`
   padding: 20px;
@@ -29,9 +32,10 @@ const GeoButton = styled.button`
   font-family: monospace;
   text-align: center;
   margin-top: 10px;
+  background-color: #2a2d32;
+  color: white;
 `
 const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
-
 
 function App() {  
 
@@ -52,6 +56,7 @@ function App() {
   };
   const [debugMsg, setDebugMsg] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(null);//isn't used currently // set to false default?
+  const [ip, setIP] = useState('');
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -66,6 +71,11 @@ function App() {
               setStatus('Unable to retrieve your location');
           },error,options);
       }
+  }
+  const getData = async () => {
+    const res = await axios.get('https://geolocation-db.com/json/')
+    console.log(res.data);
+    setIP(res.data.IPv4)
   }
   
   function requestAccessIOS() { // Request Access for IOS
@@ -136,7 +146,8 @@ function App() {
   }
 
   useEffect(() =>{ // Things are only called once because of []?
-    writeActionInput(0,0,uniqueId);
+    getData(); // Get IpV4 adress - Needs workaround to be used as ID as it is Async value.
+    writeActionInput(0,0,uniqueId); // cant pass ID
     //setDebugMsg('UseEffect called');
     //if(!permissionGranted){return;} //useEffect bliver kun kaldt én gang og det er når app kører og der er Pgranted false. Skal være callback function
     //setDebugMsg('Permissions granted in UseEffect');
@@ -184,6 +195,7 @@ function App() {
         <span>Lat {lat}</span>
         <span>Long {lng}</span>
         <span>Browser: {fnBrowserDetect()}</span>
+        <span>IP: {ip}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
@@ -249,7 +261,7 @@ function error() {
   alert('Sorry, no position available.');
 }
 
-function fnBrowserDetect(){
+function fnBrowserDetect(){ // Detect browser
                   
   let userAgent = navigator.userAgent;
   let browserName;
@@ -270,7 +282,7 @@ function fnBrowserDetect(){
     return browserName;
 }
 
-function getMobileOperatingSystem() {
+function getMobileOperatingSystem() { // Detect device
   var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
   // Windows Phone must come first because its UA also contains "Android"
@@ -291,220 +303,3 @@ function getMobileOperatingSystem() {
 }
 
 export default App;
-
-//Commented code:
-//If you want to display Quart values on screen locally (& old hook showing geolocation. Not used anymore)
-/*<span>X: {quaternion.x}</span>
-        <span>Y: {quaternion.y}</span>
-        <span>Z: {quaternion.z}</span>
-        <span>W: {quaternion.w}</span>
-        <span>Geo: {location.loaded ? JSON.stringify(location) : 'Location not available yet'}</span>
-        */ 
-
-//ask permissions
-/*const sensor = new AbsoluteOrientationSensor();
-Promise.all([
-  navigator.permissions.query({ name: "accelerometer" }),
-  navigator.permissions.query({ name: "magnetometer" }),
-  navigator.permissions.query({ name: "gyroscope" }),
-]).then((results) => {
-  if (results.every((result) => result.state === "granted")) {
-    sensor.start();
-    // …
-  } else {
-    console.log("No permissions to use AbsoluteOrientationSensor.");
-  }
-});*/
-
-
-//Permission code:
-/*
-    Promise.all([
-      navigator.permissions.query({ name: "accelerometer" }),
-      navigator.permissions.query({ name: "magnetometer" }),
-      navigator.permissions.query({ name: "gyroscope" }),
-    ]).then((results) => {
-      if (results.every((result) => result.state === "granted")) {
-        sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
-          //Console logs commented - works:
-          //console.log(`Quart0 ${sensor.quaternion[0]}`);
-          //console.log(`Quart1 ${sensor.quaternion[1]}`);
-          //console.log(`Quart2 ${sensor.quaternion[2]}`);
-          //console.log(`Quart3 ${sensor.quaternion[3]}`);
-          
-          //Set method to update values locally on screen for debugging:
-          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-          //Send til firebase herfra med metode kald som tager de 4 quaternion values.
-          writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-        });
-        sensor.addEventListener("error", (error) => {
-          if (error.name === "NotReadableError") {
-            console.log("Sensor is not available.");
-          }
-        });
-        sensor.start();
-      } else {
-        console.log("No permissions to use AbsoluteOrientationSensor.");
-      }
-    });
-  */
-  //Console logs commented - for eventlistener:
-  //console.log(`Quart0 ${sensor.quaternion[0]}`);
-  //console.log(`Quart1 ${sensor.quaternion[1]}`);
-  //console.log(`Quart2 ${sensor.quaternion[2]}`);
-  //console.log(`Quart3 ${sensor.quaternion[3]}`);
-      
-  //Insied UseEffect - Previous conditions.
-  /*if(fnBrowserDetect() === 'safari'){// specifically for when run on Safari IOS  // ""==="" instead of "=="
-      setDebugMsg("Safari True");
-        if (navigator.permissions) {
-          setDebugMsg("Asking permissions");
-          Promise.all([navigator.permissions.query({ name: "accelerometer" }),
-                      navigator.permissions.query({ name: "magnetometer" }),
-                      navigator.permissions.query({ name: "gyroscope" })])
-                .then(results => {
-                      if (results.every(result => result.state === "granted")) {
-                          setDebugMsg("Permission Granted");
-                          initSensor();
-                      } else {
-                          console.log("Permission to use sensor was denied.");
-                          setDebugMsg("Permission to use sensor was denied.");
-                      }
-                }).catch(err => {
-                      console.log("Integration with Permissions API is not enabled, still try to start app.");
-                      setDebugMsg("Integration with Permissions API is not enabled, still try to start app.");
-                      initSensor();
-                });
-      } else {
-          console.log("No Permissions API, still try to start app.");
-          setDebugMsg("No Permissions API, still try to start app.");
-          initSensor();
-      }
-
-      function initSensor() {
-        const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
-        console.log(JSON.stringify(options));
-        const sensor = new AbsoluteOrientationSensor(options);
-        sensor.addEventListener("reading", () => {
-          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-        });
-        sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
-        sensor.onerror = (event) => {
-          if (event.error.name == 'NotReadableError') {
-            console.log("Sensor is not available.");
-            setDebugMsg("Sensor is not avaliable InitSensorMethod");
-          }
-        }
-        sensor.start();
-    }
-
-    }else{
-      setDebugMsg("Not running on Safari");
-      const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
-      const sensor = new AbsoluteOrientationSensor(options);
-      writeActionInput(0,0,uniqueId); // trigger once - to trigger actionInput in database and reset score
-      sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
-        //Set method to update values locally on screen for debugging:
-        setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-        //Send til firebase herfra med metode kald som tager de 4 quaternion values.
-        writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-      });
-      //Can try sensor.onreading() instead of addEventListener?
-  
-      sensor.addEventListener("error", (error) => {
-        if (error.name === "NotReadableError") {
-          console.log("Sensor is not available.");
-        }
-      });
-      sensor.start();
-    }*/
-
-    /*  function handleOrientation(event) {
-    const absolute = event.absolute;
-    const alpha = event.alpha;
-    const beta = event.beta;
-    const gamma = event.gamma;
-  
-    // Do stuff with the new orientation data
-    setQuaternion(absolute,alpha,beta,gamma);
-  }*/
-  //window.addEventListener("deviceorientation", handleOrientation, true);
-
-  /*      function initSensor() {
-        const options = { frequency: 30, referenceFrame: "device" }; // changed to 30 freq.
-        console.log(JSON.stringify(options));
-        const sensor = new AbsoluteOrientationSensor(options);
-        sensor.addEventListener("reading", () => {
-          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-          writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-        });
-        //sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
-        sensor.onerror = (event) => {
-          if (event.error.name == 'NotReadableError') {
-            console.log("Sensor is not available.");
-            setDebugMsg("Sensor is not avaliable InitSensorMethod");
-          }
-        }
-        sensor.start();
-      }*/
-
-      //Old implementation for android // might be better for not calling const options and const sensor all the time?
-       /*
-      const options = { frequency: 60, referenceFrame: "device" }; // changed to 30 freq.
-      const sensor = new AbsoluteOrientationSensor(options);
-      sensor.addEventListener("reading", () => { //Callback function and overwrites the "only call once" - Updated every new reading
-        setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-        writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-      });
-      sensor.addEventListener("error", (error) => {
-        if (error.name === "NotReadableError") {
-          console.log("Sensor is not available.");
-        }
-      });
-      sensor.start();
-      */
-      
-      //Original initSensor method, before customizing
-      /*
-      function initSensor() { // Is everything called contionusly or only the callback part (eventListener).
-        const options = { frequency: 60, referenceFrame: "device" }; // changed to 30 freq, was 60.
-        //console.log(JSON.stringify(options));
-        const sensor = new AbsoluteOrientationSensor(options);
-        sensor.addEventListener("reading", () => {
-          setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
-          writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-        });
-        //sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
-        sensor.onerror = (event) => {
-          if (event.error.name == 'NotReadableError') {
-            console.log("Sensor is not available.");
-            setDebugMsg("Sensor is not avaliable InitSensorMethod");
-          }
-        }
-        sensor.start();
-      }*/
-
-            /*
-      if (navigator.permissions) { // call from function on click "play"
-        setDebugMsg("Asking permissions");
-        Promise.all([navigator.permissions.query({ name: "accelerometer" }),
-                    navigator.permissions.query({ name: "magnetometer" }),
-                    navigator.permissions.query({ name: "gyroscope" })])
-              .then(results => {
-                    if (results.every(result => result.state === "granted")) {
-                        setDebugMsg("Permission Granted");
-                        initSensor();
-                    } else {
-                        console.log("Permission to use sensor was denied.");
-                        setDebugMsg("Permission to use sensor was denied.");
-                    }
-              }).catch(err => {
-                    console.log("Integration with Permissions API is not enabled, still try to start app.");
-                    setDebugMsg("Integration with Permissions API is not enabled, still try to start app.");
-                    initSensor();
-              });
-      }else{
-          console.log("No Permissions API, still try to start app.");
-          setDebugMsg("No Permissions API, still try to start app.");
-          initSensor();
-      }*/
