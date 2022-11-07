@@ -146,6 +146,9 @@ function App() {
   }
 
   useEffect(() =>{ // Things are only called once because of []?
+    var getOrientation = require('o9n').getOrientation;
+    var orientation = getOrientation();
+    orientation.lock('portrait'); // could also be portait-primary // either one doesnt seem to work tho.
     getData(); // Get IpV4 adress - Needs workaround to be used as ID as it is Async value.
     writeActionInput(0,0,uniqueId); // cant pass ID
     //setDebugMsg('UseEffect called');
@@ -196,6 +199,7 @@ function App() {
         <span>Long {lng}</span>
         <span>Browser: {fnBrowserDetect()}</span>
         <span>IP: {ip}</span>
+        <span>ScreenOrient: {screenOrient}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
