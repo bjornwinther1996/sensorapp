@@ -51,7 +51,7 @@ function App() {
     maximumAge: 2700
   };
   const [debugMsg, setDebugMsg] = useState(null);
-  const [permissionGranted, setPermissionGranted] = useState(null);//isn't used currently
+  const [permissionGranted, setPermissionGranted] = useState(null);//isn't used currently // set to false default?
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -113,13 +113,14 @@ function App() {
     root.style.setProperty('--setDisplayPermissionGranted', 'flex')
     root.style.setProperty('--setDisplayStart', 'none')
   }
-
+  
   function initSensor() { // Is everything called contionusly or only the callback part (eventListener).
     /*if(!permissionGranted){
       setDebugMsg('PermissionGranted = false');
       return;}*/
+    //Tested - Only the callback function is called continously. Options and sensors are only instantiated once in UseEffect.
     const options = { frequency: 70, referenceFrame: "device" }; // changed to 30 freq, was 60. // changed back to 60
-    const sensor = new AbsoluteOrientationSensor(options); // could move this line and the above outside of initSensor?
+    const sensor = new AbsoluteOrientationSensor(options);
     sensor.addEventListener("reading", () => {
       setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
@@ -159,8 +160,8 @@ function App() {
   //Arrow thing on shoot onClick as well, so it soesnt trigger onRender?: https://stackoverflow.com/questions/33846682/react-onclick-function-fires-on-render
   return (
     <div className="App">
-      <div className='startElement'>
-        <Button className='startElement' onClick={() =>{requestAccess()}}>Play</Button>
+      <div className='startElement' id='startDiv'>
+        <Button className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</Button>
       </div>
       <header className="App-header">
       <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
