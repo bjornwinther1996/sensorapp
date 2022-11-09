@@ -136,10 +136,8 @@ function App() {
   }
 
   function showUI(){
-    console.log('functions runs?');
     let root = document.documentElement;
     setUI(!UI); // toggle bool to show sensor values locally
-    console.log('UI: ' + UI);
     if(UI){
       root.style.setProperty('--hideUI', 'block')
     }else{
