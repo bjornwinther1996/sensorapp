@@ -18,7 +18,7 @@ const Button = styled.button`
   font-size: 20px;
   font-family: monospace;
   text-align: center;
-  background-color: #2a2d32;
+  background-color: #4a584e;
   color: white;
 `
 const PlayButton = styled.button`
