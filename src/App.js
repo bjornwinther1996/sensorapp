@@ -146,7 +146,7 @@ function App() {
     const sensor = new AbsoluteOrientationSensor(options);
     sensor.addEventListener("reading", () => {
       writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
-      if(UI){
+      if(!UI){
         setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       }
     });
@@ -200,7 +200,7 @@ function App() {
       <GeoButton onClick={() =>{showUI()}}>
           Debug
       </GeoButton>    
-        <Span>V20</Span> 
+        <Span>V21</Span> 
         <div className='hiddenUI rowDiv'>
           <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
           <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
