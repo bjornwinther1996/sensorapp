@@ -57,6 +57,7 @@ function App() {
   const [debugMsg, setDebugMsg] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(null);//isn't used currently // set to false default?
   const [ip, setIP] = useState('');
+  const [UI, setUI] = useState(false);
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -123,6 +124,18 @@ function App() {
     root.style.setProperty('--setDisplayPermissionGranted', 'flex')
     root.style.setProperty('--setDisplayStart', 'none')
   }
+
+  function showUI(){
+    console.log('functions runs?');
+    let root = document.documentElement;
+    setUI(!UI); // toggle bool to show sensor values locally
+    console.log('UI: ' + UI);
+    if(UI){
+      root.style.setProperty('--hideUI', 'block')
+    }else{
+      root.style.setProperty('--hideUI', 'none')
+    }
+  }
   
   function initSensor() { // Is everything called contionusly or only the callback part (eventListener).
     /*if(!permissionGranted){
@@ -132,8 +145,10 @@ function App() {
     const options = { frequency: 70, referenceFrame: "device" }; // changed to 30 freq, was 60. // changed back to 60
     const sensor = new AbsoluteOrientationSensor(options);
     sensor.addEventListener("reading", () => {
-      setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+      if(UI){
+        setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
+      }
     });
     //sensor.onreading = () => setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});;
     sensor.onerror = (event) => {
@@ -148,7 +163,7 @@ function App() {
   useEffect(() =>{ // Things are only called once because of []?
     var getOrientation = require('o9n').getOrientation;
     var orientation = getOrientation();
-    orientation.lock('portrait'); // could also be portait-primary // either one doesnt seem to work tho.
+    orientation.lock('portrait'); // could also be 'portait-primary' // either one doesnt seem to work tho.
     getData(); // Get IpV4 adress - Needs workaround to be used as ID as it is Async value.
     writeActionInput(0,0,uniqueId); // cant pass ID
     //setDebugMsg('UseEffect called');
@@ -179,31 +194,34 @@ function App() {
         <Button className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</Button>
       </div>
       <header className="App-header">
-      <GeoButton onClick={() =>{setGeoPos(lat,lng,'top')}}>
+      <GeoButton className='hiddenUI' onClick={() =>{setGeoPos(lat,lng,'top')}}>
           Top
           </GeoButton>
+      <GeoButton onClick={() =>{showUI()}}>
+          Debug
+      </GeoButton>    
         <Span>V20</Span> 
-        <div className='rowDiv'>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
-          <div className='colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'right')}}>Right</GeoButton></div>
+        <div className='hiddenUI rowDiv'>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'right')}}>Right</GeoButton></div>
         </div>
-        <span>X: {quaternion.x}</span>
-        <span>Y: {quaternion.y}</span>
-        <span>Z: {quaternion.z}</span>
-        <span>W: {quaternion.w}</span>
-        <span>debugMsg: {debugMsg}</span>
-        <GeoButton onClick={() =>{getLocation()}}>UpdateGeo</GeoButton>
-        <span>Geo Location Status {status}</span>
-        <span>Lat {lat}</span>
-        <span>Long {lng}</span>
-        <span>Browser: {fnBrowserDetect()}</span>
-        <span>IP: {ip}</span>
+        <span className='hiddenUI'>X: {quaternion.x}</span>
+        <span className='hiddenUI'>Y: {quaternion.y}</span>
+        <span className='hiddenUI'>Z: {quaternion.z}</span>
+        <span className='hiddenUI'>W: {quaternion.w}</span>
+        <span className='hiddenUI'>debugMsg: {debugMsg}</span>
+        <GeoButton className='hiddenUI' onClick={() =>{getLocation()}}>UpdateGeo</GeoButton>
+        <span className='hiddenUI'>Geo Location Status {status}</span>
+        <span className='hiddenUI'>Lat {lat}</span>
+        <span className='hiddenUI'>Long {lng}</span>
+        <span className='hiddenUI'>Browser: {fnBrowserDetect()}</span>
+        <span className='hiddenUI'>IP: {ip}</span>
         <Button onClick={clickMe}>
           Shoot
         </Button>
         <div> 
-        <GeoButton onClick={() =>{setGeoPos(lat,lng,'bottom')}}>
+        <GeoButton className='hiddenUI' onClick={() =>{setGeoPos(lat,lng,'bottom')}}>
           Bottom
         </GeoButton>
       </div>

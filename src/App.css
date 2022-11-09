@@ -1,10 +1,15 @@
 :root{
   --setDisplayPermissionGranted: none;
   --setDisplayStart: flex;
+  --hideUI: none;
 }
 
 .startElement{
   dispay: var(--setDisplayStart);
+}
+
+.hiddenUI{
+  display: var(--hideUI)
 }
 
 #startDiv{
