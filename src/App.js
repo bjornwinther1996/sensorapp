@@ -13,7 +13,17 @@ import axios from 'axios'
 
 const Button = styled.button`
   background-color: white;
-  padding: 70px 80px;
+  padding: 90px 100px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-family: monospace;
+  text-align: center;
+  background-color: #2a2d32;
+  color: white;
+`
+const PlayButton = styled.button`
+  background-color: white;
+  padding: 40px 70px;
   border-radius: 20px;
   font-size: 20px;
   font-family: monospace;
@@ -191,7 +201,7 @@ function App() {
     <div className="App">
       <div className='startElement' id='startDiv'>
         <h1 id='startText'>Hold your phone flat in your hand and press Play</h1>
-        <Button className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</Button>
+        <PlayButton className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</PlayButton>
       </div>
       <header className="App-header">
       <GeoButton className='hiddenUI' onClick={() =>{setGeoPos(lat,lng,'top')}}>

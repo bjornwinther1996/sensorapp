@@ -25,11 +25,13 @@
   background-color: #2a2d32;
   font-size: calc(20px + 3vmin);
   color: white;
+  margin-top: 25px;
 }
 #startText{
   color: white;
   font-size: 13px;
-  padding: 10px
+  padding: 10px;
+  margin-top: 10%;
 }
 
 .App {
