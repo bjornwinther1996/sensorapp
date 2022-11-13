@@ -3,7 +3,7 @@ import './App.css';
 //import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill' // not used 
 import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
 import { useEffect, useState } from 'react';
-import { child, getDatabase, ref, set, update } from "firebase/database"; // Main Firebase implemenentation from general Lib
+import { child, get, getDatabase, ref, set, update } from "firebase/database"; // Main Firebase implemenentation from general Lib
 import {database} from "./firebase" // referencing manually created firebase.js to reference database - like databaseRef.
 import { v4 as uuid } from 'uuid'; // Unique ID package for React
 import styled from 'styled-components' // lib for styling - `writing within these backticks is writing css.`
@@ -45,7 +45,7 @@ const GeoButton = styled.button`
   background-color: #2a2d32;
   color: white;
 `
-const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
+//const uniqueId = uuid(); // creating unique id with uuid lib - Replace with Ipv4 adress eventually if possible?
 
 function App() {  
 
@@ -66,7 +66,7 @@ function App() {
   };
   const [debugMsg, setDebugMsg] = useState(null);
   const [permissionGranted, setPermissionGranted] = useState(null);//isn't used currently // set to false default?
-  const [ip, setIP] = useState('');
+  const [ip, setIP] = useState('none');
   const [UI, setUI] = useState(false);
 
   const getLocation = () => {
@@ -86,7 +86,14 @@ function App() {
   const getData = async () => {
     const res = await axios.get('https://geolocation-db.com/json/')
     console.log(res.data);
-    setIP(res.data.IPv4)
+    console.log(ip);
+    const IPv4 = res.data.IPv4;
+    const IPv4Altered = IPv4.replaceAll('.','-');
+    setIP(IPv4Altered) // using dashes instead, as '.' arent allowed to be sent to firebase.
+    //console.log('IPv4: ' + IPv4);
+    //console.log('IPv4_Altered: ' + IPv4Altered); 
+    writeActionInput(0,0, IPv4Altered); // cant pass ID
+    return IPv4Altered;
   }
   
   function requestAccessIOS() { // Request Access for IOS
@@ -144,16 +151,20 @@ function App() {
       root.style.setProperty('--hideUI', 'none')
     }
   }
+  function shoot(){
+    sendShot(1,ip);
+  }
   
-  function initSensor() { // Is everything called contionusly or only the callback part (eventListener).
+  async function initSensor() { // Is everything called contionusly or only the callback part (eventListener).
     /*if(!permissionGranted){
       setDebugMsg('PermissionGranted = false');
       return;}*/
     //Tested - Only the callback function is called continously. Options and sensors are only instantiated once in UseEffect.
-    const options = { frequency: 70, referenceFrame: "device" }; // changed to 30 freq, was 60. // changed back to 60
+    const IPv4 = await getData();
+    const options = { frequency: 70, referenceFrame: "device" }; // changed to 30 freq, was 60. // Trying 70 freq
     const sensor = new AbsoluteOrientationSensor(options);
     sensor.addEventListener("reading", () => {
-      writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], uniqueId);
+        writeSensorData(sensor.quaternion[0],sensor.quaternion[1],sensor.quaternion[2],sensor.quaternion[3], IPv4); 
       if(!UI){
         setQuaternion({x: sensor.quaternion[0],y: sensor.quaternion[1],z: sensor.quaternion[2],w: sensor.quaternion[3]});
       }
@@ -172,8 +183,8 @@ function App() {
     var getOrientation = require('o9n').getOrientation;
     var orientation = getOrientation();
     orientation.lock('portrait'); // could also be 'portait-primary' // either one doesnt seem to work tho.
-    getData(); // Get IpV4 adress - Needs workaround to be used as ID as it is Async value.
-    writeActionInput(0,0,uniqueId); // cant pass ID
+    //getData(); // Get IpV4 adress - Needs workaround to be used as ID as it is Async value.
+    //writeActionInput(0,0,uniqueId); // cant pass ID
     //setDebugMsg('UseEffect called');
     //if(!permissionGranted){return;} //useEffect bliver kun kaldt én gang og det er når app kører og der er Pgranted false. Skal være callback function
     //setDebugMsg('Permissions granted in UseEffect');
@@ -202,17 +213,17 @@ function App() {
         <PlayButton className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</PlayButton>
       </div>
       <header className="App-header">
-      <GeoButton className='hiddenUI' onClick={() =>{setGeoPos(lat,lng,'top')}}>
+      <GeoButton className='hiddenUI' onClick={() =>{sendGeoLoc(lat,lng,'top',ip)}}>
           Top
           </GeoButton>
       <GeoButton onClick={() =>{showUI()}}>
           Debug
       </GeoButton>    
-        <Span>V21</Span> 
+        <Span>V22</Span> 
         <div className='hiddenUI rowDiv'>
-          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'left')}}>Left</GeoButton></div>
-          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'middle')}}>Middle</GeoButton></div>
-          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{setGeoPos(lat,lng,'right')}}>Right</GeoButton></div>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{sendGeoLoc(lat,lng,'left', ip)}}>Left</GeoButton></div>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{sendGeoLoc(lat,lng,'middle',ip)}}>Middle</GeoButton></div>
+          <div className='hiddenUI colDiv'><GeoButton onClick={() =>{sendGeoLoc(lat,lng,'right',ip)}}>Right</GeoButton></div>
         </div>
         <span className='hiddenUI'>X: {quaternion.x}</span>
         <span className='hiddenUI'>Y: {quaternion.y}</span>
@@ -225,11 +236,11 @@ function App() {
         <span className='hiddenUI'>Long {lng}</span>
         <span className='hiddenUI'>Browser: {fnBrowserDetect()}</span>
         <span className='hiddenUI'>IP: {ip}</span>
-        <Button onClick={clickMe}>
+        <Button onClick={shoot}>
           Shoot
         </Button>
         <div> 
-        <GeoButton className='hiddenUI' onClick={() =>{setGeoPos(lat,lng,'bottom')}}>
+        <GeoButton className='hiddenUI' onClick={() =>{sendGeoLoc(lat,lng,'bottom',ip)}}>
           Bottom
         </GeoButton>
       </div>
@@ -267,8 +278,9 @@ function sendShot(input, uniqueId) {
   });
 }
 
-function sendGeoLoc(lat, lng, pos) {
+function sendGeoLoc(lat, lng, pos, uniqueId) {
   const db = database;
+  if(uniqueId == 'none'){return;} 
   update(ref(db, 'users/' + uniqueId +'/'+ 'GeneralInfo' + '/' + pos), {
     position: pos,
     latitude: lat,
@@ -276,15 +288,6 @@ function sendGeoLoc(lat, lng, pos) {
   });
 }
 
-function setGeoPos(lat, lng, pos) {
-  //implementation for calling once.
-  //should it also send it to the server?
-  sendGeoLoc(lat, lng, pos);
-}
-
-function clickMe(){
-  sendShot(1,uniqueId);
-}
 
 function error() {
   alert('Sorry, no position available.');
