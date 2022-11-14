@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/sensorapp/static/css/main.f285f067.css",
-    "main.js": "/sensorapp/static/js/main.02622b02.js",
+    "main.css": "/sensorapp/static/css/main.d30cf924.css",
+    "main.js": "/sensorapp/static/js/main.f890a4c4.js",
     "static/js/787.dd6568c4.chunk.js": "/sensorapp/static/js/787.dd6568c4.chunk.js",
+    "static/media/cupolabLogo.png": "/sensorapp/static/media/cupolabLogo.2f0e5b26cf426f8ac07a.png",
+    "static/media/planetariumLogo.png": "/sensorapp/static/media/planetariumLogo.bd76b88bc4157c69eb88.png",
     "index.html": "/sensorapp/index.html",
-    "main.f285f067.css.map": "/sensorapp/static/css/main.f285f067.css.map",
-    "main.02622b02.js.map": "/sensorapp/static/js/main.02622b02.js.map",
+    "main.d30cf924.css.map": "/sensorapp/static/css/main.d30cf924.css.map",
+    "main.f890a4c4.js.map": "/sensorapp/static/js/main.f890a4c4.js.map",
     "787.dd6568c4.chunk.js.map": "/sensorapp/static/js/787.dd6568c4.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f285f067.css",
-    "static/js/main.02622b02.js"
+    "static/css/main.d30cf924.css",
+    "static/js/main.f890a4c4.js"
   ]
 }
