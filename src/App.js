@@ -1,4 +1,6 @@
 //import logo from './logo.svg';
+import cupolabLogo from './cupolabLogo.png'
+import planetariumLogo from './planetariumLogo.png'
 import './App.css';
 //import {Accelerometer, LinearAccelerationSensor, Sensor} from 'motion-sensors-polyfill' // not used 
 import {Gyroscope, AbsoluteOrientationSensor} from 'motion-sensors-polyfill'
@@ -11,7 +13,8 @@ import React from 'react';
 //import useGeolocation from './hooks/useGeolocation'; // can only call hooks from react functions (ex: useState, useEffect) - Not used
 import axios from 'axios'
 
-const Button = styled.button`
+const ShootButton = styled.button`
+  /*
   background-color: white;
   padding: 90px 100px;
   border-radius: 20px;
@@ -19,11 +22,11 @@ const Button = styled.button`
   font-family: monospace;
   text-align: center;
   background-color: #4a584e;
-  color: white;
+  color: white;*/
 `
 const PlayButton = styled.button`
   background-color: white;
-  padding: 40px 70px;
+  padding: 30px 80px;
   border-radius: 20px;
   font-size: 20px;
   font-family: monospace;
@@ -134,7 +137,7 @@ function App() {
       requestAccessIOS();
     }else{ //android or windows phone: // "else" // dekstop browsers
       requestAccessAndroid();
-    }
+    } // needs to be condition here that checks if the requestested access was granted. Only if user accepts, they proceed, and following code executes:
     const startElements = document.querySelector('.startElement');
     startElements.remove();
     let root = document.documentElement;
@@ -209,17 +212,21 @@ function App() {
   return (
     <div className="App">
       <div className='startElement' id='startDiv'>
-        <h1 id='startText'>Hold your phone flat in your hand and press Play</h1>
-        <PlayButton className='startElement' id='playButton' onClick={() =>{requestAccess()}}>Play</PlayButton>
+        <div className='logosDiv'>
+        <img src={cupolabLogo} className='cupoLogo'></img>
+        <img src={planetariumLogo} className='planetariumLogo'></img>
+        </div>
+        <PlayButton className='startElement' id='playButton' onClick={() =>{requestAccess()}}><p className='PulsatingText'>Play</p></PlayButton>
       </div>
       <header className="App-header">
+      <h1 id='titleGame'>Space Invaders</h1>
       <GeoButton className='hiddenUI' onClick={() =>{sendGeoLoc(lat,lng,'top',ip)}}>
           Top
           </GeoButton>
       <GeoButton onClick={() =>{showUI()}}>
           Debug
       </GeoButton>    
-        <Span>V22</Span> 
+        <Span id='versionText'>V23</Span> 
         <div className='hiddenUI rowDiv'>
           <div className='hiddenUI colDiv'><GeoButton onClick={() =>{sendGeoLoc(lat,lng,'left', ip)}}>Left</GeoButton></div>
           <div className='hiddenUI colDiv'><GeoButton onClick={() =>{sendGeoLoc(lat,lng,'middle',ip)}}>Middle</GeoButton></div>
@@ -236,10 +243,10 @@ function App() {
         <span className='hiddenUI'>Long {lng}</span>
         <span className='hiddenUI'>Browser: {fnBrowserDetect()}</span>
         <span className='hiddenUI'>IP: {ip}</span>
-        <Button onClick={shoot}>
+        <ShootButton className='depth' type='button' onClick={shoot}>
           Shoot
-        </Button>
-        <div> 
+        </ShootButton>
+        <div className='hiddenUI'> 
         <GeoButton className='hiddenUI' onClick={() =>{sendGeoLoc(lat,lng,'bottom',ip)}}>
           Bottom
         </GeoButton>

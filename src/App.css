@@ -14,24 +14,61 @@
 
 #startDiv{
   width: 100%;
-  height: 100vh;
+  height: 100%;
   margin: 0%;
-  background-color: #282c34;
-  padding-top: 40%;
+  background-color: #181a1d;
+  padding-top: 0%;
+  padding-bottom: 80%;
 }
+
+.logosDiv{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 15%;
+}
+.cupoLogo{
+  width: 50%;
+  
+}
+.planetariumLogo{
+  width: 15%;
+  padding-top: 5%;
+}
+
 #playButton{
   display: flex;
   margin: auto;
-  background-color: #4a584e;
-  font-size: calc(20px + 3vmin);
-  color: white;
-  margin-top: 25px;
+  background-color: #202221a3;
+  /*font-size: calc(20px + 3vmin);*/
+  margin-top: 30%;
 }
-#startText{
-  color: white;
-  font-size: 13px;
-  padding: 10px;
-  margin-top: 10%;
+
+.PulsatingText {
+  /* Chrome, Safari, Opera */
+ -webkit-animation: PulsatingText 5s ease-in-out; 
+ -webkit-animation-iteration-count: infinite; 
+ 
+ /* Internet Explorer */
+ -ms-animation: PulsatingText 5s ease-in;
+ 
+ /* Standard Syntax */
+ animation: PulsatingText 5s ease-in-out;
+ animation-iteration-count: infinite;
+}
+/* Chrome, Safari, Opera */
+@-webkit-keyframes PulsatingText{
+  50%{color:rgb(107, 243, 234);}	
+ 110%{color: rgb(255, 255, 255);}
+}
+
+@keyframes PulsatingText{
+  50%{color:rgb(107, 243, 234);}	
+	110%{color: rgb(255, 255, 255);}
+}
+@-ms-keyframes PulsatingText{
+  50%{color:rgb(107, 243, 234);}	
+	110%{color: rgb(255, 255, 255);}
 }
 
 .App {
@@ -51,14 +88,24 @@
 
 .App-header {
   display: var(--setDisplayPermissionGranted);
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: #181a1d;
+  /*min-height: 100%; /*was vh*/
+  width: 50vh;
+  height: 100vh;
   /*display: flex;*/
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+#titleGame{
+  color: rgba(99, 99, 99, 0.915);
+  font-size: 24px;
+  font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  padding-top: 0%;
+  padding-bottom:10%;
+  margin-top: 0%;
 }
 
 .App-link {
@@ -82,4 +129,75 @@
 }
 .rowDiv{
   display: flex;
+}
+#versionText{
+  padding-bottom: 10%;
+}
+
+/* 3D Button */
+/*
+html {
+  -webkit-tap-highlight-color:transparent
+}*/
+/*
+button:active {
+  outline: 0;
+}*/
+button.depth {
+  -webkit-tap-highlight-color:transparent;
+  background: #444;
+  border: none;
+  border-radius: 300px;
+  box-shadow: inset 0 0 2px 2px hsla(0,0%,0%,.2),
+              inset 0 0 2px 4px hsla(0,0%,0%,.2),
+              inset 0 0 2px 6px hsla(0,0%,0%,.2),
+              inset 0 0 1px 8px hsla(0,0%,0%,.5),
+              inset 0 -4px 2px 4px hsla(0,0%,0%,.5),
+              inset 0 1px 1px 8px hsla(0,0%,100%,.25),
+              inset 0 -30px 30px hsla(0,0%,0%,.2),
+              0 -4px 8px 4px hsla(0,0%,0%,.5),
+              0 10px 10px hsla(0,0%,0%,.25),
+              0 0 2px 2px hsla(0,0%,0%,.2),
+              0 0 2px 4px hsla(0,0%,0%,.2),
+              0 0 2px 6px hsla(0,0%,0%,.2),
+              0 0 2px 8px hsla(0,0%,0%,.5),
+              0 1px 2px 8px hsla(0,0%,100%,.25),
+              0 -1px 2px 8px hsla(0,0%,0%,.5);
+  color: #303030;
+  cursor: pointer;
+  font: bold 40px/85px sans-serif;
+  height: 300px;
+  padding: 0;
+  text-align: center;
+  font-size: large;
+  text-shadow: 0 1px 1px hsla(0,0%,100%,.25),
+               0 -1px 1px hsla(0,0%,0%,.75);
+  width: 300px;
+}
+button.depth:focus {
+  /*color: rgba(99, 99, 99, 0.915);
+  text-shadow: 0 0 20px hsla(240,75%,75%,.5),
+               0 1px 1px hsla(0,0%,100%,.25),
+               0 -1px 1px hsla(0,0%,0%,.75);*/
+}
+button.depth:active {
+  box-shadow: inset 0 0 2px 2px hsla(0,0%,0%,.2),
+              inset 0 0 2px 4px hsla(0,0%,0%,.2),
+              inset 0 0 2px 6px hsla(0,0%,0%,.2),
+              inset 0 0 1px 7px hsla(0,0%,0%,.5),
+              inset 0 5px 15px 7px hsla(0,0%,0%,.15),
+              inset 0 -4px 2px 3px hsla(0,0%,0%,.5),
+              inset 0 1px 1px 7px hsla(0,0%,100%,.25),
+              inset 0 -30px 30px hsla(0,0%,0%,.1),
+              inset 0 30px 30px hsla(0,0%,0%,.2),
+              0 -4px 8px 4px hsla(0,0%,0%,.5),
+              0 5px 10px hsla(0,0%,0%,.25),
+              0 0 2px 2px hsla(0,0%,0%,.2),
+              0 0 2px 4px hsla(0,0%,0%,.2),
+              0 0 2px 6px hsla(0,0%,0%,.2),
+              0 0 2px 8px hsla(0,0%,0%,.5),
+              0 1px 2px 8px hsla(0,0%,100%,.25),
+              0 -1px 2px 8px hsla(0,0%,0%,.5);
+  line-height: 86px;
+  color: rgba(114, 217, 215, 0.964);
 }
